@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendify - Student Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- CSS loaded from root -->
+  <link rel="stylesheet" href="../style.css" />
+  <!-- QRCode.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="dashboard-body">
+
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <span class="brand-name">Attendify</span>
+    </div>
+
+    <div class="user-nav">
+      <div class="philippine-clock" aria-label="Philippine time">
+        <span>PH TIME</span>
+        <time id="philippine-time">--:--:--</time>
+        <time id="philippine-date">---</time>
+      </div>
+      <div class="user-info">
+        <span class="user-display-name" id="nav-user-name">Student</span>
+        <span class="user-role-badge">Student</span>
+      </div>
+      <a href="uploadphoto.html" class="user-avatar-wrapper" title="Change profile picture" aria-label="Change profile picture">
+        <div class="user-avatar" id="user-avatar">ST</div>
+        <div class="avatar-overlay" aria-hidden="true">
+          <i class="fa-solid fa-camera"></i>
+        </div>
+      </a>
+      <button class="btn-signout" id="btn-signout">Sign out</button>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+    <div class="dashboard-header">
+      <div>
+        <p class="section-tag">Student dashboard</p>
+        <h1>Welcome back, <span id="dash-first-name">Student</span>.</h1>
+        <p class="subtitle">Your attendance pass is ready for your next class.</p>
+      </div>
+      <a href="joinclass.html" class="btn-join-class">
+        <i class="fa-solid fa-plus"></i> Join a class
+      </a>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="student-pass-card">
+        <div class="pass-info-side">
+          <div class="badge pass-badge">
+            <span class="dot"></span> ACTIVE STUDENT PASS
+          </div>
+
+          <div class="pass-field">
+            <label>Student name</label>
+            <h2 id="pass-student-name">--</h2>
+          </div>
+
+          <div class="pass-field">
+            <label>Student ID</label>
+            <h3 id="pass-student-id">--</h3>
+          </div>
+
+          <div class="pass-footer">
+            <i class="fa-solid fa-check"></i> Verified for the current academic term
+          </div>
+        </div>
+
+        <div class="pass-qr-side">
+          <div class="qr-box">
+            <div id="qrcode"></div>
+          </div>
+          <p class="qr-title">Scan to record attendance</p>
+          <p class="qr-sub">Keep the code inside the frame</p>
+        </div>
+      </div>
+
+      <div class="dashboard-sidebar">
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <span>Overall attendance</span>
+            <div class="icon-bubble"><i class="fa-solid fa-chart-simple"></i></div>
+          </div>
+          <div class="attendance-stat" id="attendance-stat">--</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="attendance-progress" style="width: 0%;"></div>
+          </div>
+          <p class="stat-caption" id="attendance-caption">No attendance records yet.</p>
+        </div>
+
+        <div class="dash-card profile-card">
+          <h4>Profile details</h4>
+          <div class="detail-row">
+            <span>Account type</span>
+            <strong>Student</strong>
+          </div>
+          <div class="detail-row">
+            <span>Student ID</span>
+            <strong id="profile-student-id">--</strong>
+          </div>
+          <div class="detail-row">
+            <span>Email</span>
+            <strong id="profile-email">--</strong>
+          </div>
+          <a href="uploadphoto.html" class="profile-upload-link">
+            <i class="fa-solid fa-camera"></i> Upload profile picture
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <section class="classes-section">
+      <div class="student-classes-heading">
+        <div>
+          <h3>My classes</h3>
+          <p class="subtitle">Classes you joined using a teacher's code</p>
+        </div>
+        <a class="student-classes-link" href="sectionst.html">View all classes <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      <div id="my-classes-list">
+        <div class="empty-classes-card">
+          <div class="empty-icon-box">
+            <i class="fa-regular fa-folder"></i>
+          </div>
+          <h4>You haven't joined a class yet</h4>
+          <p>Ask your teacher for the class join code.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Script loaded from root -->
+  <script src="../script.js"></script>
+</body>
+</html>

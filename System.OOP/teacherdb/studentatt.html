@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendify - Student Attendance Calendar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body class="teacher-dashboard-body">
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <span class="brand-name">Attendify</span>
+    </div>
+
+    <div class="user-nav">
+      <div class="user-info">
+        <span class="user-display-name" id="nav-user-name">Teacher</span>
+        <span class="user-role-badge">Teacher</span>
+      </div>
+      <div class="user-avatar" id="user-avatar">TC</div>
+      <button class="btn-signout" id="btn-signout">Sign out</button>
+    </div>
+  </header>
+
+  <!-- Blurred Background Section View -->
+  <main class="dashboard-container">
+    <div style="margin-bottom: 16px;">
+      <a href="teacherdb.html" style="color: #6b7280; text-decoration: none; font-size: 13px; font-weight: 600;">
+        <i class="fa-solid fa-arrow-left"></i> All sections
+      </a>
+    </div>
+
+    <div class="dashboard-header">
+      <div>
+        <p class="section-tag" id="bg-section-code">CS 201 · Section B</p>
+        <h1 id="bg-subject-title">Web Development Fundamentals</h1>
+        <p class="subtitle" id="calendar-section-context">Monthly attendance record</p>
+      </div>
+      <button class="btn-join-class">
+        <i class="fa-solid fa-plus"></i> Start attendance
+      </button>
+    </div>
+
+    <!-- Banner Card -->
+    <div class="student-pass-card" style="margin-bottom: 30px; padding: 28px 32px; flex-direction: column;">
+      <div class="badge pass-badge" style="width: fit-content;">
+        <span class="dot"></span> Class in progress
+      </div>
+      <h2 id="bg-banner-subject" style="font-size: 24px; margin-bottom: 16px;">Web Development Fundamentals</h2>
+      <div style="display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 16px;">
+        <div>
+          <span style="font-size: 12px; opacity: 0.7;">Students</span>
+          <h3 id="bg-students-count" style="font-size: 22px;">24</h3>
+        </div>
+        <div>
+          <span style="font-size: 12px; opacity: 0.7;">Join code</span>
+          <h3 id="bg-join-code" style="font-size: 18px;">WEB-B4M9</h3>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Student Monthly Attendance Modal Overlay -->
+  <div class="modal-overlay" id="student-att-modal">
+    <div class="att-modal-card">
+      <!-- Close Button -->
+      <a href="javascript:history.back()" class="modal-close-btn" title="Close">&times;</a>
+
+      <!-- Student Header Info -->
+      <div class="att-student-header">
+        <div class="att-student-avatar" id="modal-student-initials">MA</div>
+        <div>
+          <h3 id="modal-student-name">Mia Anderson</h3>
+          <p id="modal-student-id">STU-2026-10428</p>
+        </div>
+      </div>
+
+      <!-- Calendar Header & Legend -->
+      <div class="att-calendar-topbar">
+        <div>
+          <p class="modal-tag">ATTENDANCE CALENDAR</p>
+          <h2 id="calendar-month-title"></h2>
+        </div>
+
+        <div class="att-legend">
+          <span class="legend-item"><span class="legend-dot present"></span> Present</span>
+          <span class="legend-item"><span class="legend-dot late"></span> Late</span>
+          <span class="legend-item"><span class="legend-dot absent"></span> Absent</span>
+        </div>
+      </div>
+
+      <!-- Monthly Calendar Grid -->
+      <div class="calendar-wrapper">
+        <div class="calendar-weekdays">
+          <div>SUN</div>
+          <div>MON</div>
+          <div>TUE</div>
+          <div>WED</div>
+          <div>THU</div>
+          <div>FRI</div>
+          <div>SAT</div>
+        </div>
+
+        <div class="calendar-days-grid" id="calendar-days-grid">
+          <!-- Days rendered dynamically via JS -->
+        </div>
+      </div>
+
+      <!-- Bottom Summary Counts Card -->
+      <div class="att-summary-box">
+        <div class="summary-col">
+          <h4 class="text-present" id="summary-present-count">0</h4>
+          <span>Present</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-col">
+          <h4 class="text-late" id="summary-late-count">0</h4>
+          <span>Late</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-col">
+          <h4 class="text-absent" id="summary-absent-count">0</h4>
+          <span>Absent</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../script.js"></script>
+</body>
+</html>

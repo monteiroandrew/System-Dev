@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendify - Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="card-container">
+    <!-- Left Hero Section -->
+    <div class="left-panel">
+      <div class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <span class="brand-name">Attendify</span>
+      </div>
+
+      <div class="hero-content">
+        <div class="badge">
+          <span class="dot"></span> SMART ATTENDANCE
+        </div>
+        <h1>Every class,<br>accounted for.</h1>
+        <p>A simpler way for students and teachers to track attendance, stay organized, and focus on learning.</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>98%</h3>
+          <p>Accuracy</p>
+        </div>
+        <div class="stat-card">
+          <h3>24/7</h3>
+          <p>Access</p>
+        </div>
+        <div class="stat-card">
+          <h3>1 tap</h3>
+          <p>Check-in</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Form Section -->
+    <div class="right-panel">
+      <div class="form-header">
+        <p class="welcome-tag">Welcome to Attendify</p>
+        <h2>Sign in to continue</h2>
+        <p class="subtitle">Access your attendance dashboard and class records.</p>
+      </div>
+
+      <div class="tab-switcher">
+        <a href="index.html" class="tab-btn active">Sign in</a>
+        <a href="signup.html" class="tab-btn">Create account</a>
+      </div>
+
+      <form id="login-form">
+        <label class="input-label">I am a</label>
+        <div class="role-selector">
+          <button type="button" class="role-btn active" data-role="student">
+            <i class="fa-solid fa-graduation-cap"></i> Student
+          </button>
+          <button type="button" class="role-btn" data-role="teacher">
+            <i class="fa-regular fa-user"></i> Teacher
+          </button>
+        </div>
+
+        <div class="input-group">
+          <label for="email" id="email-label">Student email</label>
+          <input type="email" id="email" placeholder="name@school.edu" required />
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="password" placeholder="Enter your password" required />
+            <i class="fa-regular fa-eye toggle-password" id="togglePassword"></i>
+          </div>
+        </div>
+
+        <div class="form-options">
+          <label class="remember-me">
+            <input type="checkbox" />
+            <span>Remember me</span>
+          </label>
+          <a href="#" class="forgot-pass">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="submit-btn">
+          Sign in to Attendify <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+        <p class="footer-text">
+          Don't have an account? <a href="signup.html">Create account</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

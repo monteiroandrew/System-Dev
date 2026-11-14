@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendify - My Classes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body class="student-sections-page">
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon"><i class="fa-solid fa-check"></i></div>
+      <span class="brand-name">Attendify</span>
+    </div>
+    <div class="user-nav">
+      <div class="philippine-clock" aria-label="Philippine date and time">
+        <span>PH TIME</span>
+        <time id="philippine-time">--:--:--</time>
+        <time id="philippine-date">---</time>
+      </div>
+      <div class="user-info">
+        <span class="user-display-name" id="nav-user-name">Student</span>
+        <span class="user-role-badge">Student</span>
+      </div>
+      <div class="user-avatar" id="user-avatar">ST</div>
+      <button class="btn-signout" id="btn-signout">Sign out</button>
+    </div>
+  </header>
+
+  <main class="student-sections-container">
+    <a class="section-back-link" href="studentdb.html">
+      <i class="fa-solid fa-arrow-left"></i> Student dashboard
+    </a>
+    <div class="student-sections-heading">
+      <div>
+        <p class="section-tag">Student dashboard</p>
+        <h1>My classes</h1>
+        <p class="subtitle">Your approved class enrollments and attendance records.</p>
+      </div>
+      <a class="btn-join-class" href="joinclass.html"><i class="fa-solid fa-plus"></i> Join a class</a>
+    </div>
+    <div class="student-sections-grid" id="student-sections-list" aria-live="polite"></div>
+  </main>
+
+  <script src="../script.js"></script>
+</body>
+</html>

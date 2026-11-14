@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendify - Create a Section</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body class="teacher-dashboard-body">
+
+  <!-- Background Teacher Dashboard -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <span class="brand-name">Attendify</span>
+    </div>
+
+    <div class="user-nav">
+      <div class="user-info">
+        <span class="user-display-name" id="nav-user-name">Teacher</span>
+        <span class="user-role-badge">Teacher</span>
+      </div>
+      <div class="user-avatar" id="user-avatar">TC</div>
+      <button class="btn-signout" id="btn-signout">Sign out</button>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+    <div class="dashboard-header">
+      <div>
+        <p class="section-tag">Teacher dashboard</p>
+        <h1>Good morning, <span id="dash-first-name">Teacher</span>.</h1>
+        <p class="subtitle">Choose a section to view and manage its attendance.</p>
+      </div>
+      <a href="createsec.html" class="btn-create-section" style="text-decoration: none;">
+        <i class="fa-solid fa-plus"></i> Create section
+      </a>
+    </div>
+
+    <div class="sections-toolbar">
+      <div>
+        <h3>My sections</h3>
+        <p class="subtitle-sm"><span id="active-classes-count">4</span> active classes &middot; 2nd Semester</p>
+      </div>
+      <a href="#" class="view-archive-link">View archive</a>
+    </div>
+
+    <div class="sections-grid" id="sections-grid">
+      <!-- Dynamic/Default sections load here -->
+    </div>
+
+    <div class="next-class-banner">
+      <div class="next-class-left">
+        <div class="clock-icon-box">
+          <i class="fa-regular fa-clock"></i>
+        </div>
+        <div>
+          <h5>Next class</h5>
+          <p>Web Development Fundamentals &middot; Section A</p>
+        </div>
+      </div>
+      <div class="next-class-right">
+        <strong>Today, 9:00 AM</strong>
+        <span>Lab 204</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Create Section Modal Overlay -->
+  <div class="modal-overlay" id="create-section-modal">
+    <div class="modal-card modal-card-wide">
+      <a href="teacherdb.html" class="modal-close-btn">&times;</a>
+
+      <p class="modal-tag">NEW FOLDER</p>
+      <h2>Create a section</h2>
+      <p class="modal-sub">A unique join code will be created for your students.</p>
+
+      <form id="create-section-form">
+        <div class="input-group">
+          <label for="subject-name">Subject name</label>
+          <input type="text" id="subject-name" placeholder="e.g. Human Computer Interaction" required />
+        </div>
+
+        <div class="two-col-grid">
+          <div class="input-group">
+            <label for="section-name">Section</label>
+            <input type="text" id="section-name" placeholder="Section A" required />
+          </div>
+          <div class="input-group">
+            <label for="course-code">Course code</label>
+            <input type="text" id="course-code" placeholder="CS 204" required />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="schedule">Schedule</label>
+          <input type="text" id="schedule" placeholder="Mon · Wed · 1:00 PM" required />
+        </div>
+
+        <div class="input-group">
+          <label for="room">Room</label>
+          <input type="text" id="room" placeholder="Room 205" required />
+        </div>
+
+        <div class="modal-footer-actions">
+          <a href="teacherdb.html" class="btn-cancel">Cancel</a>
+          <button type="submit" class="btn-create-submit">Create section</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../script.js"></script>
+</body>
+</html>

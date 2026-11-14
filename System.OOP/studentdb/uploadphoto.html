@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendify - Upload Profile Picture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body class="dashboard-body">
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <span class="brand-name">Attendify</span>
+    </div>
+
+    <div class="user-nav">
+      <div class="user-info">
+        <span class="user-display-name" id="nav-user-name">Student</span>
+        <span class="user-role-badge">Student</span>
+      </div>
+      <div class="user-avatar" id="user-avatar">ST</div>
+      <button class="btn-signout" id="btn-signout">Sign out</button>
+    </div>
+  </header>
+
+  <!-- Upload Photo Card Section -->
+  <div class="upload-page-container">
+    <div class="upload-card">
+      <a href="studentdb.html" class="modal-close-btn">&times;</a>
+
+      <p class="modal-tag">PROFILE CUSTOMIZATION</p>
+      <h2>Upload Profile Picture</h2>
+      <p class="modal-sub">Choose a clear picture to display on your student pass and navigation header.</p>
+
+      <form id="upload-photo-form">
+        <!-- Preview Box -->
+        <div class="photo-preview-area" id="photo-preview-box">
+          <div class="preview-avatar" id="preview-avatar-circle">ST</div>
+          <p class="preview-text">Click below to select an image from your device</p>
+        </div>
+
+        <input type="file" id="photo-file-input" accept="image/*" style="display: none;" />
+
+        <div class="photo-action-buttons">
+          <button type="button" class="role-btn" id="btn-select-photo">
+            <i class="fa-solid fa-image"></i> Select Photo
+          </button>
+          <button type="submit" class="submit-btn" id="btn-save-photo" disabled>
+            Save Profile Picture
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../script.js"></script>
+</body>
+</html>
