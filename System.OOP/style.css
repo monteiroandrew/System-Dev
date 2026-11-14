@@ -362,6 +362,120 @@ body {
   font-weight: 600;
 }
 
+@media (max-width: 760px) {
+  body.auth-page {
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  .card-container {
+    flex-direction: column;
+    max-width: 520px;
+    min-height: 0;
+  }
+
+  .left-panel {
+    flex: none;
+    padding: 28px 32px;
+  }
+
+  .hero-content {
+    margin: 24px 0;
+  }
+
+  .right-panel {
+    flex: none;
+    padding: 36px 40px;
+  }
+}
+
+@media (max-width: 520px) {
+  body.auth-page {
+    padding: 0;
+    background: #ffffff;
+  }
+
+  .card-container {
+    max-width: none;
+    min-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .left-panel {
+    padding: 24px 22px 20px;
+  }
+
+  .hero-content {
+    margin: 20px 0 0;
+  }
+
+  .badge {
+    margin-bottom: 12px;
+  }
+
+  .hero-content h1 {
+    font-size: 28px;
+  }
+
+  .hero-content p {
+    max-width: 360px;
+    font-size: 12.5px;
+  }
+
+  .stats-grid {
+    display: none;
+  }
+
+  .right-panel {
+    padding: 28px 22px 32px;
+  }
+
+  .form-header h2 {
+    font-size: 22px;
+  }
+
+  .welcome-tag {
+    font-size: 12px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+  }
+
+  .tab-btn,
+  .role-btn {
+    font-size: 12px;
+  }
+
+  .submit-btn {
+    font-size: 13px;
+  }
+
+  .footer-text {
+    font-size: 11px;
+  }
+
+  .tab-btn,
+  .role-btn {
+    min-height: 44px;
+  }
+
+  .input-group input {
+    min-height: 48px;
+    padding: 12px 14px;
+    font-size: 16px;
+  }
+
+  .password-wrapper input {
+    padding-right: 42px;
+  }
+
+  .submit-btn {
+    min-height: 48px;
+  }
+}
+
 /* Dashboard Styles */
 body.dashboard-body {
   background-color: #f6f8f7;
