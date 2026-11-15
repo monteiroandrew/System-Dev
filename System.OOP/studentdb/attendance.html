@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendify - Class Attendance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body class="dashboard-body student-attendance-page">
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon"><i class="fa-solid fa-check"></i></div>
+      <span class="brand-name">Attendify</span>
+    </div>
+    <div class="user-nav">
+      <div class="philippine-clock" aria-label="Philippine time">
+        <span>PH TIME</span>
+        <time id="philippine-time">--:--:--</time>
+        <time id="philippine-date">---</time>
+      </div>
+      <div class="user-info">
+        <span class="user-display-name" id="nav-user-name">Student</span>
+        <span class="user-role-badge">Student</span>
+      </div>
+      <div class="user-avatar" id="user-avatar">ST</div>
+      <button class="btn-signout" id="btn-signout">Sign out</button>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+    <a class="section-back-link" href="studentdb.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Student dashboard
+    </a>
+
+    <div class="dashboard-header">
+      <div>
+        <p class="section-tag">YOUR CLASS</p>
+        <h1 id="student-attendance-title">Class attendance</h1>
+        <p class="subtitle" id="student-attendance-meta">View your attendance record by month.</p>
+      </div>
+    </div>
+
+    <p class="student-attendance-empty" id="student-attendance-empty" role="status" hidden></p>
+
+    <section class="student-attendance-card" id="student-attendance-content" aria-labelledby="student-calendar-month-title">
+      <div class="student-attendance-topbar">
+        <div>
+          <p class="section-tag">ATTENDANCE CALENDAR</p>
+          <h2 id="student-calendar-month-title" aria-live="polite"></h2>
+        </div>
+        <div class="student-calendar-controls" aria-label="Calendar month navigation">
+          <button type="button" id="student-calendar-previous" aria-label="Previous month">
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+          </button>
+          <button type="button" id="student-calendar-next" aria-label="Next month">
+            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="student-attendance-legend" aria-label="Attendance status legend">
+        <span class="legend-item"><span class="legend-dot present"></span> Present</span>
+        <span class="legend-item"><span class="legend-dot late"></span> Late</span>
+        <span class="legend-item"><span class="legend-dot absent"></span> Absent</span>
+      </div>
+
+      <div class="calendar-wrapper">
+        <div class="calendar-weekdays">
+          <div>SUN</div>
+          <div>MON</div>
+          <div>TUE</div>
+          <div>WED</div>
+          <div>THU</div>
+          <div>FRI</div>
+          <div>SAT</div>
+        </div>
+        <div class="calendar-days-grid" id="student-calendar-days-grid" aria-live="polite"></div>
+      </div>
+
+      <p class="student-attendance-no-records" id="student-attendance-no-records" role="status" hidden>
+        No attendance has been recorded for this class this month.
+      </p>
+
+      <div class="att-summary-box" aria-label="Monthly attendance totals">
+        <div class="summary-col">
+          <h4 class="text-present" id="student-summary-present">0</h4>
+          <span>Present</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-col">
+          <h4 class="text-late" id="student-summary-late">0</h4>
+          <span>Late</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-col">
+          <h4 class="text-absent" id="student-summary-absent">0</h4>
+          <span>Absent</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="../script.js"></script>
+</body>
+</html>

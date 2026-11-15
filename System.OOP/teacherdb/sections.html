@@ -160,6 +160,24 @@
         <button class="attendance-primary-button checkin-action-button" id="open-camera" type="button">
           <i class="fa-solid fa-camera"></i> Open camera
         </button>
+        <div class="scan-result" id="scan-result" hidden>
+          <div class="scan-result-student">
+            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+            <div>
+              <strong id="scanned-student-name"></strong>
+              <span id="scanned-student-time"></span>
+            </div>
+          </div>
+          <p>Choose this student’s attendance status:</p>
+          <div class="scan-result-actions">
+            <button class="attendance-primary-button" id="mark-scanned-present" type="button">Present</button>
+            <button class="attendance-primary-button scan-late-button" id="mark-scanned-late" type="button">Late</button>
+          </div>
+          <p class="checkin-status" id="scan-result-status" role="status"></p>
+          <button class="checkin-end-button scan-next-button" id="scan-next-student" type="button" hidden>
+            Scan next student
+          </button>
+        </div>
       </div>
 
       <form class="checkin-mode-panel" id="manual-mode-panel" hidden>
@@ -175,6 +193,7 @@
     </section>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <script src="../script.js"></script>
 </body>
 </html>

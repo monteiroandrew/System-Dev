@@ -79,12 +79,29 @@
 
         <div class="pass-qr-side">
           <div class="qr-box">
-            <div id="qrcode"></div>
+            <button type="button" class="qr-expand-button" id="expand-student-qr"
+              aria-haspopup="dialog" aria-controls="student-qr-dialog"
+              aria-label="Expand student QR code for scanning">
+              <div id="qrcode"></div>
+              <span class="qr-expand-hint">Tap to enlarge</span>
+            </button>
           </div>
           <p class="qr-title">Scan to record attendance</p>
           <p class="qr-sub">Keep the code inside the frame</p>
         </div>
       </div>
+
+      <dialog class="student-qr-dialog" id="student-qr-dialog" aria-labelledby="student-qr-title">
+        <div class="student-qr-dialog-card">
+          <button type="button" class="student-qr-close" id="close-student-qr"
+            aria-label="Close enlarged QR code">&times;</button>
+          <p class="student-qr-dialog-tag">STUDENT ATTENDANCE PASS</p>
+          <h2 id="student-qr-title">Student name</h2>
+          <p class="student-qr-dialog-id" id="student-qr-id">Student ID</p>
+          <div class="student-qr-large" id="expanded-qrcode"></div>
+          <p class="student-qr-dialog-hint">Hold your screen steady while your teacher scans.</p>
+        </div>
+      </dialog>
 
       <div class="dashboard-sidebar">
         <div class="dash-card">

@@ -50,6 +50,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
     return `${values.year}-${values.month}-${values.day}`;
   };
+  const formatPhilippineDateTime = timestamp => {
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) return '';
+    return new Intl.DateTimeFormat('en-PH', {
+      timeZone: 'Asia/Manila',
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    }).format(date);
+  };
+  const formatPhilippineTime = timestamp => {
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) return '';
+    return new Intl.DateTimeFormat('en-PH', {
+      timeZone: 'Asia/Manila',
+      hour: 'numeric',
+      minute: '2-digit'
+    }).format(date);
+  };
 
   const philippineTime = document.querySelector('#philippine-time');
   if (philippineTime) {
@@ -259,8 +277,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       joinedSections.forEach(section => {
-        const card = document.createElement('article');
-        card.className = 'student-class-card';
+        const card = document.createElement('a');
+        card.className = 'student-class-card student-class-link';
+        card.href = `attendance.html?section=${encodeURIComponent(section.id)}`;
+        card.setAttribute('aria-label', `View attendance for ${section.subject}, ${section.section}`);
         const status = document.createElement('span');
         status.className = 'student-class-status is-enrolled';
         status.textContent = 'Enrolled';
@@ -275,7 +295,10 @@ document.addEventListener('DOMContentLoaded', () => {
         teacher.textContent = teacherUser
           ? `Teacher: ${teacherUser.firstName} ${teacherUser.lastName}`
           : 'Teacher';
-        card.append(status, title, details, schedule, teacher);
+        const action = document.createElement('span');
+        action.className = 'student-class-card-action';
+        action.innerHTML = 'View attendance <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>';
+        card.append(status, title, details, schedule, teacher, action);
         myClassesList.appendChild(card);
       });
     }
@@ -284,18 +307,52 @@ document.addEventListener('DOMContentLoaded', () => {
     const qrContainer = document.querySelector('#qrcode');
     if (qrContainer && typeof QRCode !== 'undefined') {
       qrContainer.innerHTML = '';
+      const qrValue = JSON.stringify({
+        studentId: currentUser.studentId,
+        name: fullName,
+        email: currentUser.email
+      });
       new QRCode(qrContainer, {
-        text: JSON.stringify({
-          studentId: currentUser.studentId,
-          name: fullName,
-          email: currentUser.email
-        }),
+        text: qrValue,
         width: 140,
         height: 140,
         colorDark: "#000000",
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
       });
+
+      const expandQrButton = document.querySelector('#expand-student-qr');
+      const qrDialog = document.querySelector('#student-qr-dialog');
+      const expandedQrContainer = document.querySelector('#expanded-qrcode');
+      const closeQrButton = document.querySelector('#close-student-qr');
+      const expandedStudentName = document.querySelector('#student-qr-title');
+      const expandedStudentId = document.querySelector('#student-qr-id');
+      if (expandedStudentName) expandedStudentName.textContent = fullName;
+      if (expandedStudentId) {
+        expandedStudentId.textContent = `ID: ${currentUser.studentId || 'ID unavailable'}`;
+      }
+      if (expandQrButton && qrDialog && expandedQrContainer && closeQrButton) {
+        let expandedQrCreated = false;
+        expandQrButton.addEventListener('click', () => {
+          if (!expandedQrCreated) {
+            new QRCode(expandedQrContainer, {
+              text: qrValue,
+              width: 260,
+              height: 260,
+              colorDark: "#000000",
+              colorLight: "#ffffff",
+              correctLevel: QRCode.CorrectLevel.H
+            });
+            expandedQrCreated = true;
+          }
+          qrDialog.showModal();
+        });
+        closeQrButton.addEventListener('click', () => qrDialog.close());
+        qrDialog.addEventListener('click', event => {
+          if (event.target === qrDialog) qrDialog.close();
+        });
+        qrDialog.addEventListener('close', () => expandQrButton.focus());
+      }
     }
 
     // Sign out handler
@@ -364,8 +421,10 @@ document.addEventListener('DOMContentLoaded', () => {
           : 0;
         const teacher = users.find(user => user.email === section.teacherEmail);
 
-        const card = document.createElement('article');
-        card.className = 'student-section-card';
+        const card = document.createElement('a');
+        card.className = 'student-section-card student-section-link';
+        card.href = `attendance.html?section=${encodeURIComponent(section.id)}`;
+        card.setAttribute('aria-label', `View attendance for ${section.subject}, ${section.section}`);
         const cardHeader = document.createElement('div');
         cardHeader.className = 'student-section-card-header';
         const icon = document.createElement('span');
@@ -406,9 +465,111 @@ document.addEventListener('DOMContentLoaded', () => {
         rate.textContent = markedCount ? `${attendanceRate}% attendance` : 'No attendance recorded';
         attendance.append(attendanceHeading, attendanceCounts, progress, rate);
 
-        card.append(cardHeader, sectionName, courseName, schedule, teacherName, attendance);
+        const action = document.createElement('span');
+        action.className = 'student-section-card-action';
+        action.innerHTML = 'View attendance calendar <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>';
+        card.append(cardHeader, sectionName, courseName, schedule, teacherName, attendance, action);
         sectionsList.appendChild(card);
       });
+    }
+  }
+
+  // --- Student class attendance calendar ---
+  const studentAttendancePage = document.querySelector('.student-attendance-page');
+  if (studentAttendancePage) {
+    const params = new URLSearchParams(window.location.search);
+    const sectionId = params.get('section');
+    const currentUser = JSON.parse(localStorage.getItem('attendify_current_user'));
+    const section = getStoredTeacherSections().find(item =>
+      item.id === sectionId &&
+      (item.students || []).includes(currentUser.email)
+    );
+    const attendanceContent = document.querySelector('#student-attendance-content');
+    const emptyMessage = document.querySelector('#student-attendance-empty');
+
+    if (!section) {
+      attendanceContent.hidden = true;
+      emptyMessage.hidden = false;
+      emptyMessage.textContent = 'This class is unavailable or you are not enrolled in it.';
+    } else {
+      document.querySelector('#student-attendance-title').textContent = section.subject;
+      document.querySelector('#student-attendance-meta').textContent =
+        `${section.courseCode} · ${section.section} · ${section.schedule || 'Schedule not set'}`;
+
+      const monthTitle = document.querySelector('#student-calendar-month-title');
+      const daysGrid = document.querySelector('#student-calendar-days-grid');
+      const previousButton = document.querySelector('#student-calendar-previous');
+      const nextButton = document.querySelector('#student-calendar-next');
+      const currentMonthParts = getPhilippineDateKey().slice(0, 7).split('-').map(Number);
+      const currentMonth = new Date(currentMonthParts[0], currentMonthParts[1] - 1, 1);
+      const displayMonth = new Date(currentMonth);
+
+      const renderCalendar = () => {
+        const year = displayMonth.getFullYear();
+        const monthIndex = displayMonth.getMonth();
+        const monthKey = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
+        const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+        const firstWeekday = new Date(year, monthIndex, 1).getDay();
+        const totalCells = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
+        const statusesByDate = {};
+        const timesByDate = {};
+
+        (section.attendanceSessions || []).forEach(session => {
+          if (!session.date || !session.date.startsWith(`${monthKey}-`)) return;
+          const status = session.statuses && session.statuses[currentUser.email];
+          if (['present', 'late', 'absent'].includes(status)) {
+            statusesByDate[session.date] = status;
+            timesByDate[session.date] =
+              session.statusTimes && session.statusTimes[currentUser.email];
+          } else {
+            delete statusesByDate[session.date];
+            delete timesByDate[session.date];
+          }
+        });
+
+        const counts = { present: 0, late: 0, absent: 0 };
+        let cells = '<div class="cal-cell"></div>'.repeat(firstWeekday);
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dateKey = `${monthKey}-${String(day).padStart(2, '0')}`;
+          const status = statusesByDate[dateKey];
+          const timestamp = timesByDate[dateKey];
+          if (status) counts[status] += 1;
+          const label = status ? `, ${status}` : ', no attendance record';
+          const recordedAt = timestamp ? `, ${formatPhilippineDateTime(timestamp)}` : '';
+          cells += `
+            <div class="cal-cell${status ? ` status-${status}` : ''}"
+              aria-label="${dateKey}${label}${recordedAt}" title="${dateKey}${label}${recordedAt}">
+              <span class="cal-day-num">${day}</span>
+              ${status ? `<span class="cal-status-text">${status}</span>` : ''}
+              ${timestamp ? `<span class="cal-status-time">${formatPhilippineTime(timestamp)}</span>` : ''}
+            </div>
+          `;
+        }
+        cells += '<div class="cal-cell"></div>'.repeat(totalCells - firstWeekday - daysInMonth);
+        daysGrid.innerHTML = cells;
+        monthTitle.textContent = new Intl.DateTimeFormat('en-PH', {
+          month: 'long',
+          year: 'numeric'
+        }).format(displayMonth);
+
+        document.querySelector('#student-summary-present').textContent = counts.present;
+        document.querySelector('#student-summary-late').textContent = counts.late;
+        document.querySelector('#student-summary-absent').textContent = counts.absent;
+        const hasRecords = counts.present + counts.late + counts.absent > 0;
+        document.querySelector('#student-attendance-no-records').hidden = hasRecords;
+        nextButton.disabled = displayMonth >= currentMonth;
+      };
+
+      previousButton.addEventListener('click', () => {
+        displayMonth.setMonth(displayMonth.getMonth() - 1);
+        renderCalendar();
+      });
+      nextButton.addEventListener('click', () => {
+        if (displayMonth >= currentMonth) return;
+        displayMonth.setMonth(displayMonth.getMonth() + 1);
+        renderCalendar();
+      });
+      renderCalendar();
     }
   }
 
@@ -553,6 +714,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const joinRequestsPanel = document.querySelector('#join-requests-panel');
     const checkinModal = document.querySelector('#attendance-checkin-modal');
     const videoElement = document.querySelector('#attendance-camera');
+    const videoFrame = document.querySelector('.checkin-video-frame');
     const cameraPlaceholder = document.querySelector('#camera-placeholder');
     const cameraStatus = document.querySelector('#camera-status');
     const manualStatus = document.querySelector('#manual-status');
@@ -561,9 +723,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const scanModePanel = document.querySelector('#scan-mode-panel');
     const endAttendanceButton = document.querySelector('#end-attendance');
     const openCameraButton = document.querySelector('#open-camera');
+    const scanResult = document.querySelector('#scan-result');
+    const scannedStudentName = document.querySelector('#scanned-student-name');
+    const scannedStudentTime = document.querySelector('#scanned-student-time');
+    const scanResultStatus = document.querySelector('#scan-result-status');
+    const markScannedPresentButton = document.querySelector('#mark-scanned-present');
+    const markScannedLateButton = document.querySelector('#mark-scanned-late');
+    const scanNextStudentButton = document.querySelector('#scan-next-student');
     let cameraStream = null;
     let scanFrame = null;
     let qrDetector = null;
+    let pendingScan = null;
+    const qrCanvas = document.createElement('canvas');
+    const qrCanvasContext = qrCanvas.getContext('2d', { willReadFrequently: true });
 
     joinRequestsToggle.addEventListener('click', () => {
       const isExpanded = joinRequestsToggle.getAttribute('aria-expanded') === 'true';
@@ -627,6 +799,7 @@ document.addEventListener('DOMContentLoaded', () => {
           date: getPhilippineDateKey(),
           startedAt: new Date().toISOString(),
           active: true,
+          statusTimes: {},
           statuses: Object.fromEntries((section.students || []).map(email => [email, 'unmarked']))
         });
         persistSections();
@@ -648,7 +821,7 @@ document.addEventListener('DOMContentLoaded', () => {
       closeCheckinDialog();
     };
 
-    const checkInStudent = code => {
+    const getStudentForCheckIn = code => {
       const normalizedCode = code.trim().toLowerCase();
       const student = users.find(user =>
         user.email.toLowerCase() === normalizedCode ||
@@ -665,15 +838,42 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!session || !session.active) {
         return { success: false, message: 'Attendance is not active. Start a session and try again.' };
       }
-      session.statuses = session.statuses || {};
-      if (session.statuses[student.email] === 'present') {
-        return { success: false, message: `${student.firstName} ${student.lastName} is already checked in.` };
-      }
+      return { success: true, student, session };
+    };
 
-      session.statuses[student.email] = 'present';
+    const recordStudentAttendance = (student, session, status, markedAt) => {
+      if (!session.active) {
+        return { success: false, message: 'This attendance session has ended. Start a new session to make changes.' };
+      }
+      session.statuses = session.statuses || {};
+      session.statusTimes = session.statusTimes || {};
+      session.statuses[student.email] = status;
+      session.statusTimes[student.email] = markedAt.toISOString();
       persistSections();
       renderAttendance();
-      return { success: true, message: `${student.firstName} ${student.lastName} checked in.` };
+      return { success: true, message: `${student.firstName} ${student.lastName} marked ${status}.` };
+    };
+
+    const checkInStudent = code => {
+      const result = getStudentForCheckIn(code);
+      if (!result.success) return result;
+      return recordStudentAttendance(result.student, result.session, 'present', new Date());
+    };
+
+    const saveScannedAttendance = status => {
+      if (!pendingScan) return;
+      const { student, session, scannedAt } = pendingScan;
+      const result = recordStudentAttendance(student, session, status, scannedAt);
+      scanResultStatus.textContent = result.success
+        ? `${result.message} ${formatPhilippineDateTime(scannedAt)}`
+        : result.message;
+      scanResultStatus.classList.toggle('is-success', result.success);
+      if (result.success) {
+        markScannedPresentButton.disabled = true;
+        markScannedLateButton.disabled = true;
+        scanNextStudentButton.hidden = false;
+        pendingScan = null;
+      }
     };
 
     const decodeStudentQr = rawValue => {
@@ -686,22 +886,37 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const scanForQr = async () => {
-      if (!('BarcodeDetector' in window)) {
-        cameraStatus.textContent = 'QR scanning is not supported by this browser. Use “Enter student code” instead.';
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        cameraStatus.textContent = 'Camera access is unavailable. Open this page over HTTPS or localhost, or enter the student code instead.';
         return;
       }
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        cameraStatus.textContent = 'Camera access is unavailable. Use “Enter student code” instead.';
+      if (!('BarcodeDetector' in window) && typeof window.jsQR !== 'function') {
+        cameraStatus.textContent = 'QR scanning support could not be loaded. Check your connection or enter the student code instead.';
         return;
       }
 
+      scanResult.hidden = true;
+      scanResultStatus.textContent = '';
+      scanResultStatus.classList.remove('is-success');
+      pendingScan = null;
+      videoFrame.hidden = false;
       openCameraButton.disabled = true;
       try {
-        qrDetector = new BarcodeDetector({ formats: ['qr_code'] });
+        qrDetector = null;
+        if ('BarcodeDetector' in window) {
+          try {
+            qrDetector = new BarcodeDetector({ formats: ['qr_code'] });
+          } catch (error) {
+            if (typeof window.jsQR !== 'function') throw error;
+          }
+        }
         cameraStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: { ideal: 'environment' } },
           audio: false
         });
+        if (!qrDetector && (!qrCanvasContext || typeof window.jsQR !== 'function')) {
+          throw new Error('The QR decoder is unavailable in this browser.');
+        }
         videoElement.srcObject = cameraStream;
         await videoElement.play();
         cameraPlaceholder.hidden = true;
@@ -710,13 +925,41 @@ document.addEventListener('DOMContentLoaded', () => {
         const scanFrameForCode = async () => {
           if (!cameraStream || checkinModal.hidden) return;
           try {
-            const codes = await qrDetector.detect(videoElement);
+            let rawValue = '';
+            if (qrDetector) {
+              const codes = await qrDetector.detect(videoElement);
+              rawValue = codes.length > 0 ? codes[0].rawValue : '';
+            } else if (videoElement.videoWidth && videoElement.videoHeight) {
+              qrCanvas.width = videoElement.videoWidth;
+              qrCanvas.height = videoElement.videoHeight;
+              qrCanvasContext.drawImage(videoElement, 0, 0, qrCanvas.width, qrCanvas.height);
+              const image = qrCanvasContext.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+              const code = window.jsQR(image.data, image.width, image.height, {
+                inversionAttempts: 'attemptBoth'
+              });
+              rawValue = code ? code.data : '';
+            }
             if (!cameraStream || checkinModal.hidden) return;
-            if (codes.length > 0) {
-              const result = checkInStudent(decodeStudentQr(codes[0].rawValue));
-              cameraStatus.textContent = result.message;
+            if (rawValue) {
+              const result = getStudentForCheckIn(decodeStudentQr(rawValue));
+              cameraStatus.textContent = result.message || 'QR code scanned. Choose Present or Late.';
               if (result.success) {
+                const scannedAt = new Date();
+                pendingScan = {
+                  student: result.student,
+                  session: result.session,
+                  scannedAt
+                };
+                scannedStudentName.textContent =
+                  `${result.student.firstName} ${result.student.lastName}`;
+                scannedStudentTime.textContent = formatPhilippineDateTime(scannedAt);
+                markScannedPresentButton.disabled = false;
+                markScannedLateButton.disabled = false;
+                scanNextStudentButton.hidden = true;
+                scanResult.hidden = false;
+                openCameraButton.hidden = true;
                 stopCamera();
+                videoFrame.hidden = true;
                 return;
               }
             }
@@ -730,7 +973,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scanFrame = requestAnimationFrame(scanFrameForCode);
       } catch (error) {
         stopCamera();
-        cameraStatus.textContent = error.name === 'NotAllowedError'
+        cameraStatus.textContent = ['NotAllowedError', 'SecurityError'].includes(error.name)
           ? 'Camera permission was denied or unavailable. Use HTTPS or localhost, allow camera access, or enter the student code instead.'
           : `Could not open the camera: ${error.message}`;
       }
@@ -749,6 +992,10 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelector('#choose-manual-mode').classList.remove('is-selected');
       scanModePanel.hidden = false;
       manualCheckinForm.hidden = true;
+      scanResult.hidden = true;
+      videoFrame.hidden = false;
+      openCameraButton.hidden = false;
+      pendingScan = null;
       stopCamera();
       cameraStatus.textContent = 'Allow camera access to scan student QR codes.';
     });
@@ -758,11 +1005,22 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelector('#choose-scan-mode').classList.remove('is-selected');
       scanModePanel.hidden = true;
       manualCheckinForm.hidden = false;
+      scanResult.hidden = true;
+      openCameraButton.hidden = false;
+      pendingScan = null;
       stopCamera();
       manualCheckinInput.focus();
     });
 
     openCameraButton.addEventListener('click', scanForQr);
+    markScannedPresentButton.addEventListener('click', () => saveScannedAttendance('present'));
+    markScannedLateButton.addEventListener('click', () => saveScannedAttendance('late'));
+    scanNextStudentButton.addEventListener('click', () => {
+      scanResult.hidden = true;
+      videoFrame.hidden = false;
+      openCameraButton.hidden = false;
+      scanForQr();
+    });
     endAttendanceButton.addEventListener('click', finishAttendance);
     manualCheckinForm.addEventListener('submit', event => {
       event.preventDefault();
@@ -989,10 +1247,23 @@ document.addEventListener('DOMContentLoaded', () => {
         statusSelect.disabled = !(todaySession && todaySession.active);
         statusSelect.addEventListener('change', () => {
           todaySession.statuses[email] = statusSelect.value;
+          todaySession.statusTimes = todaySession.statusTimes || {};
+          if (statusSelect.value === 'unmarked') {
+            delete todaySession.statusTimes[email];
+          } else if (!todaySession.statusTimes[email]) {
+            todaySession.statusTimes[email] = new Date().toISOString();
+          }
           persistSections();
           renderAttendance();
         });
         todayCell.appendChild(statusSelect);
+        const statusTime = todaySession && todaySession.statusTimes && todaySession.statusTimes[email];
+        if (statusTime) {
+          const timestamp = document.createElement('small');
+          timestamp.className = 'attendance-status-time';
+          timestamp.textContent = formatPhilippineDateTime(statusTime);
+          todayCell.appendChild(timestamp);
+        }
         row.appendChild(todayCell);
 
         const actionCell = document.createElement('td');
@@ -1094,6 +1365,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const validMonth = monthIndex >= 0 && monthIndex < 12;
     const displayYear = validMonth ? year : currentMonth[0];
     const displayMonthIndex = validMonth ? monthIndex : currentMonth[1] - 1;
+    const currentMonthDate = new Date(currentMonth[0], currentMonth[1] - 1, 1);
+    const displayMonth = new Date(displayYear, displayMonthIndex, 1);
 
     document.querySelector('#modal-student-name').textContent = studentName;
     document.querySelector('#modal-student-id').textContent = studentId;
@@ -1110,50 +1383,77 @@ document.addEventListener('DOMContentLoaded', () => {
         (section.students || []).length;
       document.querySelector('#bg-join-code').textContent = section.joinCode || '—';
     }
-    document.querySelector('#calendar-month-title').textContent =
-      new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' })
-        .format(new Date(displayYear, displayMonthIndex, 1));
-
-    const attendanceByDate = {};
-    if (studentIsEnrolled) {
-      (section.attendanceSessions || []).forEach(session => {
-        if (!session.date || !session.date.startsWith(
-          `${displayYear}-${String(displayMonthIndex + 1).padStart(2, '0')}-`
-        )) return;
-        const status = session.statuses && session.statuses[studentEmail];
-        if (['present', 'late', 'absent'].includes(status)) {
-          attendanceByDate[session.date] = status;
-        } else {
-          delete attendanceByDate[session.date];
-        }
-      });
-    }
-
     const daysGrid = document.querySelector('#calendar-days-grid');
+    const monthTitle = document.querySelector('#calendar-month-title');
+    const previousMonthButton = document.querySelector('#teacher-calendar-previous');
+    const nextMonthButton = document.querySelector('#teacher-calendar-next');
     if (daysGrid) {
-      const firstWeekday = new Date(displayYear, displayMonthIndex, 1).getDay();
-      const daysInMonth = new Date(displayYear, displayMonthIndex + 1, 0).getDate();
-      const totalCells = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
-      const statusCounts = { present: 0, late: 0, absent: 0 };
-      let cellsHTML = '<div class="cal-cell"></div>'.repeat(firstWeekday);
+      const renderCalendar = () => {
+        const displayYear = displayMonth.getFullYear();
+        const displayMonthIndex = displayMonth.getMonth();
+        const monthKey = `${displayYear}-${String(displayMonthIndex + 1).padStart(2, '0')}`;
+        const attendanceByDate = {};
+        const attendanceTimeByDate = {};
+        if (studentIsEnrolled) {
+          (section.attendanceSessions || []).forEach(session => {
+            if (!session.date || !session.date.startsWith(`${monthKey}-`)) return;
+            const status = session.statuses && session.statuses[studentEmail];
+            if (['present', 'late', 'absent'].includes(status)) {
+              attendanceByDate[session.date] = status;
+              attendanceTimeByDate[session.date] =
+                session.statusTimes && session.statusTimes[studentEmail];
+            } else {
+              delete attendanceByDate[session.date];
+              delete attendanceTimeByDate[session.date];
+            }
+          });
+        }
 
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateKey = `${displayYear}-${String(displayMonthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const status = attendanceByDate[dateKey];
-        if (status) statusCounts[status] += 1;
-        cellsHTML += `
-          <div class="cal-cell${status ? ` status-${status}` : ''}">
-            <span class="cal-day-num">${day}</span>
-            ${status ? `<span class="cal-status-text">${status.toUpperCase()}</span>` : ''}
-          </div>
-        `;
-      }
-      cellsHTML += '<div class="cal-cell"></div>'.repeat(totalCells - firstWeekday - daysInMonth);
+        const firstWeekday = new Date(displayYear, displayMonthIndex, 1).getDay();
+        const daysInMonth = new Date(displayYear, displayMonthIndex + 1, 0).getDate();
+        const totalCells = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
+        const statusCounts = { present: 0, late: 0, absent: 0 };
+        let cellsHTML = '<div class="cal-cell"></div>'.repeat(firstWeekday);
 
-      daysGrid.innerHTML = cellsHTML;
-      document.querySelector('#summary-present-count').textContent = statusCounts.present;
-      document.querySelector('#summary-late-count').textContent = statusCounts.late;
-      document.querySelector('#summary-absent-count').textContent = statusCounts.absent;
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dateKey = `${monthKey}-${String(day).padStart(2, '0')}`;
+          const status = attendanceByDate[dateKey];
+          const timestamp = attendanceTimeByDate[dateKey];
+          if (status) statusCounts[status] += 1;
+          const recordedAt = timestamp ? `, ${formatPhilippineDateTime(timestamp)}` : '';
+          cellsHTML += `
+            <div class="cal-cell${status ? ` status-${status}` : ''}"
+              aria-label="${dateKey}${status ? `, ${status}` : ', no attendance record'}${recordedAt}"
+              title="${dateKey}${status ? `, ${status}` : ', no attendance record'}${recordedAt}">
+              <span class="cal-day-num">${day}</span>
+              ${status ? `<span class="cal-status-text">${status.toUpperCase()}</span>` : ''}
+              ${timestamp ? `<span class="cal-status-time">${formatPhilippineTime(timestamp)}</span>` : ''}
+            </div>
+          `;
+        }
+        cellsHTML += '<div class="cal-cell"></div>'.repeat(totalCells - firstWeekday - daysInMonth);
+
+        daysGrid.innerHTML = cellsHTML;
+        monthTitle.textContent = new Intl.DateTimeFormat('en-US', {
+          month: 'long',
+          year: 'numeric'
+        }).format(displayMonth);
+        document.querySelector('#summary-present-count').textContent = statusCounts.present;
+        document.querySelector('#summary-late-count').textContent = statusCounts.late;
+        document.querySelector('#summary-absent-count').textContent = statusCounts.absent;
+        nextMonthButton.disabled = displayMonth >= currentMonthDate;
+      };
+
+      previousMonthButton.addEventListener('click', () => {
+        displayMonth.setMonth(displayMonth.getMonth() - 1);
+        renderCalendar();
+      });
+      nextMonthButton.addEventListener('click', () => {
+        if (displayMonth >= currentMonthDate) return;
+        displayMonth.setMonth(displayMonth.getMonth() + 1);
+        renderCalendar();
+      });
+      renderCalendar();
     }
   }
   const teacherDashboardBody = document.querySelector('.teacher-dashboard-body');
@@ -1226,62 +1526,18 @@ document.addEventListener('DOMContentLoaded', () => {
       (cancelButton || overlay.querySelector('.teacher-dialog-confirm')).focus();
     };
 
-    // Default initial sections if none saved yet
-    const defaultSections = [
-      {
-        id: 'sec-1',
-        section: 'SECTION A',
-        subject: 'Web Development Fundamentals',
-        courseCode: 'CS 201',
-        schedule: 'Mon · Wed · 9:00 AM',
-        room: 'Lab 204',
-        studentsCount: 8,
-        joinCode: 'WEB-A7K2',
-        iconColor: 'green'
-      },
-      {
-        id: 'sec-2',
-        section: 'SECTION B',
-        subject: 'Web Development Fundamentals',
-        courseCode: 'CS 201',
-        schedule: 'Tue · Thu · 10:30 AM',
-        room: 'Lab 205',
-        studentsCount: 24,
-        joinCode: 'WEB-B9M4',
-        iconColor: 'olive'
-      },
-      {
-        id: 'sec-3',
-        section: 'SECTION A',
-        subject: 'Introduction to Programming',
-        courseCode: 'CS 101',
-        schedule: 'Mon · Fri · 1:00 PM',
-        room: 'Room 102',
-        studentsCount: 31,
-        joinCode: 'PRG-A1X8',
-        iconColor: 'slate'
-      },
-      {
-        id: 'sec-4',
-        section: 'SECTION C',
-        subject: 'Data Structures',
-        courseCode: 'CS 305',
-        schedule: 'Tue · Thu · 2:30 PM',
-        room: 'Lab 201',
-        studentsCount: 27,
-        joinCode: 'DST-C4P9',
-        iconColor: 'green'
-      }
-    ];
+    const demoSectionIds = new Set(['sec-1', 'sec-2', 'sec-3', 'sec-4']);
+    const storedSections = getStoredTeacherSections();
+    const sectionsWithoutDemoData = storedSections.filter(section =>
+      section.teacherEmail || !demoSectionIds.has(section.id)
+    );
+    if (sectionsWithoutDemoData.length !== storedSections.length) {
+      saveTeacherSections(sectionsWithoutDemoData);
+    }
 
-    const getTeacherSections = () => {
-      const saved = localStorage.getItem('attendify_teacher_sections');
-      if (!saved) {
-        localStorage.setItem('attendify_teacher_sections', JSON.stringify(defaultSections));
-        return defaultSections;
-      }
-      return JSON.parse(saved);
-    };
+    const getTeacherSections = () => getStoredTeacherSections().filter(section =>
+      section.teacherEmail === currentUser.email
+    );
 
     const renderSections = () => {
       const sectionsGrid = document.querySelector('#sections-grid');
@@ -1291,7 +1547,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const sections = getTeacherSections();
       if (activeCountEl) activeCountEl.textContent = sections.length;
 
-      sectionsGrid.innerHTML = sections.map(sec => `
+      sectionsGrid.innerHTML = sections.length
+        ? sections.map(sec => `
         <div class="folder-card" data-id="${sec.id}" role="link" tabindex="0"
           aria-label="Open ${sec.courseCode} ${sec.section}: ${sec.subject}"
           data-href="sections.html?id=${encodeURIComponent(sec.id)}">
@@ -1322,7 +1579,17 @@ document.addEventListener('DOMContentLoaded', () => {
             </a>
           </div>
         </div>
-      `).join('');
+      `).join('')
+        : `
+          <div class="teacher-empty-state" role="status">
+            <div class="teacher-empty-icon"><i class="fa-regular fa-folder-open" aria-hidden="true"></i></div>
+            <h4>No sections yet</h4>
+            <p>Create a section to organize your classes and invite students to join.</p>
+            <a href="createsec.html" class="teacher-empty-action">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i> Create your first section
+            </a>
+          </div>
+        `;
 
       sectionsGrid.querySelectorAll('.folder-card[data-href]').forEach(card => {
         const openSection = event => {
@@ -1351,8 +1618,8 @@ document.addEventListener('DOMContentLoaded', () => {
             cancelText: 'Keep section',
             destructive: true,
             onConfirm: () => {
-            const updated = getTeacherSections().filter(s => s.id !== secId);
-            localStorage.setItem('attendify_teacher_sections', JSON.stringify(updated));
+            const updated = getStoredTeacherSections().filter(s => s.id !== secId);
+            saveTeacherSections(updated);
             renderSections();
             }
           });
@@ -1397,9 +1664,9 @@ document.addEventListener('DOMContentLoaded', () => {
           iconColor: randomColor
         };
 
-        const sections = getTeacherSections();
+        const sections = getStoredTeacherSections();
         sections.push(newSection);
-        localStorage.setItem('attendify_teacher_sections', JSON.stringify(sections));
+        saveTeacherSections(sections);
 
         showTeacherDialog({
           title: 'Section created',

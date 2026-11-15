@@ -86,9 +86,17 @@
 
       <!-- Calendar Header & Legend -->
       <div class="att-calendar-topbar">
-        <div>
-          <p class="modal-tag">ATTENDANCE CALENDAR</p>
-          <h2 id="calendar-month-title"></h2>
+        <div class="att-calendar-month-navigation">
+          <button type="button" id="teacher-calendar-previous" aria-label="Previous month">
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+          </button>
+          <div>
+            <p class="modal-tag">ATTENDANCE CALENDAR</p>
+            <h2 id="calendar-month-title" aria-live="polite"></h2>
+          </div>
+          <button type="button" id="teacher-calendar-next" aria-label="Next month">
+            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+          </button>
         </div>
 
         <div class="att-legend">
